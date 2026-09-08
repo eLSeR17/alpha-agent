@@ -1,5 +1,7 @@
 # AlphaAgent — Investment Research Agent with Tool Use & Guardrails
 
+[![CI](https://github.com/eLSeR17/alpha-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/eLSeR17/alpha-agent/actions/workflows/ci.yml)
+
 > **What it demonstrates**: a real agentic system with LLM tool-use (function calling),
 > safety guardrails, and grounding against hallucination — built entirely on local
 > models (Ollama, no cloud, no API keys).
@@ -67,6 +69,7 @@ machine with zero cloud dependencies.
 - **yfinance** — free financial data (market prices, ratios, news)
 - **Docker Compose** — `docker_default` network (same pattern as other projects)
 - **pytest** — 191 unit tests + E2E validation
+- **GitHub Actions** — CI on push/PR (Python 3.11 & 3.12 matrix)
 
 ## Getting Started
 
@@ -111,6 +114,14 @@ PY
 - **Eval harness**: Golden dataset + LLM-as-judge + runner (regression testing)
 
 E2E test validates real function calling with Ollama `qwen2.5:7b` — no mocks.
+
+## CI
+
+The project runs **GitHub Actions CI** on every push and pull request to `main`.
+The pipeline tests against **Python 3.11 and 3.12** on `ubuntu-latest`.
+
+All 191 tests are fully deterministic (mocked LLM, mocked yfinance) —
+CI requires no external services, no Ollama, and no network access.
 
 ## Roadmap
 
