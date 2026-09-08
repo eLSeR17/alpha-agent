@@ -1,6 +1,7 @@
 # AlphaAgent — Investment Research Agent with Tool Use & Guardrails
 
 [![CI](https://github.com/eLSeR17/alpha-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/eLSeR17/alpha-agent/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > **What it demonstrates**: a real agentic system with LLM tool-use (function calling),
 > safety guardrails, and grounding against hallucination — built entirely on local
@@ -123,6 +124,17 @@ The pipeline tests against **Python 3.11 and 3.12** on `ubuntu-latest`.
 All 191 tests are fully deterministic (mocked LLM, mocked yfinance) —
 CI requires no external services, no Ollama, and no network access.
 
+## Development process
+
+The full build is documented end-to-end in
+[**`docs/DEVELOPMENT_LOG.md`**](docs/DEVELOPMENT_LOG.md): the phase-by-phase
+timeline, and six real incident reports (what failed, when, why, how it was fixed,
+and how the fix was verified) — from grounding false negatives to a
+mis-calibrated LLM-as-judge. It is written to show *how* the agent was made
+reliable, not just that it passed: every problem was reproduced against a real
+local model, fixed with regression coverage, and re-validated end-to-end
+(final real eval run: **mean 0.991 / 9 of 10 cases**).
+
 ## Roadmap
 
 - **Persistence/Memory**: Conversation history and context window management
@@ -140,6 +152,10 @@ CI requires no external services, no Ollama, and no network access.
   No guarantee of data completeness or accuracy.
 - **Educational scope**: Designed to demonstrate agentic patterns, not to replace
   commercial financial analysis tools.
+
+## License
+
+MIT — see [LICENSE](LICENSE). Free to use, modify and distribute with attribution.
 
 ---
 
