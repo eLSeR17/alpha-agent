@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Entornos / secretos (NUNCA subir)
+.env
+.env.local
+
+# Datos generados
+data/*.json
+data/*.pkl
+!data/golden/*.json
+
+# Evals: generated reports (regenerated with run_evals.py; never committed)
+**/data/evals/report_*.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store

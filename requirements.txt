@@ -1,0 +1,11 @@
+# AlphaAgent – core dependencies
+pydantic>=2.0,<3.0
+httpx>=0.24,<1.0
+
+# Financial data (free, no API key)
+yfinance>=0.2.40,<1.0
+numpy>=1.23
+pandas>=1.5
+
+# Testing
+pytest>=7.0,<9.0
