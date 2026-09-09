@@ -162,3 +162,11 @@ MIT — see [LICENSE](LICENSE). Free to use, modify and distribute with attribut
 **Disclaimer**: AlphaAgent is a portfolio project for educational purposes. It does
 not provide financial advice, recommendations, or endorsements. All data is for
 demonstration only. Past performance does not guarantee future results.
+
+## Related portfolio projects
+
+`alpha-agent` is externally evaluated by
+[`evalforge`](https://github.com/eLSeR17/evalforge), a sibling portfolio project
+that QAs this agent and
+[`smart-contract-rag`](https://github.com/eLSeR17/smart-contract-rag) as
+black-box subjects (golden datasets, dual judge, regression guard).
