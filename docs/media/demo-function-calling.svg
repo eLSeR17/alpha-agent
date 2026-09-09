@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="650" viewBox="0 0 760 650" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13">
+<rect width="760" height="40" rx="8" fill="#161b22"/>
+<circle cx="20" cy="20.0" r="6" fill="#f85149"/>
+<circle cx="40" cy="20.0" r="6" fill="#d29922"/>
+<circle cx="60" cy="20.0" r="6" fill="#3fb950"/>
+<text x="380.0" y="24.0" fill="#8b949e" text-anchor="middle" font-size="12">alpha-agent — live function-calling check (Ollama qwen2.5:7b)</text>
+<rect width="760" height="610" y="40" fill="#0d1117"/>
+<text x="40" y="79.0" fill="#58a6ff">$ docker exec -w /repo alpha-agent-demo python scripts/verify_tool_calling.py</text>
+<text x="40" y="98.0" fill="#c9d1d9"> </text>
+<text x="40" y="117.0" fill="#58a6ff">=== Ollama Function-Calling Verification ===</text>
+<text x="40" y="136.0" fill="#c9d1d9">Endpoint : http://ollama:11434/api/chat</text>
+<text x="40" y="155.0" fill="#c9d1d9">Model    : qwen2.5:7b</text>
+<text x="40" y="174.0" fill="#c9d1d9"> </text>
+<text x="40" y="193.0" fill="#d29922">[1/3] Sending request to Ollama ...</text>
+<text x="40" y="212.0" fill="#c9d1d9">      Request succeeded.</text>
+<text x="40" y="231.0" fill="#c9d1d9"> </text>
+<text x="40" y="250.0" fill="#d29922">[2/3] Parsing response ...</text>
+<text x="40" y="269.0" fill="#c9d1d9">      content     = &#x27;&#x27;</text>
+<text x="40" y="288.0" fill="#c9d1d9">      tool_calls  = [</text>
+<text x="40" y="307.0" fill="#c9d1d9">  {</text>
+<text x="40" y="326.0" fill="#c9d1d9">    &quot;id&quot;: &quot;call_fouyb6oj&quot;,</text>
+<text x="40" y="345.0" fill="#c9d1d9">    &quot;function&quot;: {</text>
+<text x="40" y="364.0" fill="#c9d1d9">      &quot;index&quot;: 0,</text>
+<text x="40" y="383.0" fill="#c9d1d9">      &quot;name&quot;: &quot;get_stock_price&quot;,</text>
+<text x="40" y="402.0" fill="#c9d1d9">      &quot;arguments&quot;: {</text>
+<text x="40" y="421.0" fill="#c9d1d9">        &quot;symbol&quot;: &quot;AAPL&quot;</text>
+<text x="40" y="440.0" fill="#c9d1d9">      }</text>
+<text x="40" y="459.0" fill="#c9d1d9">    }</text>
+<text x="40" y="478.0" fill="#c9d1d9">  }</text>
+<text x="40" y="497.0" fill="#c9d1d9">]</text>
+<text x="40" y="516.0" fill="#c9d1d9"> </text>
+<text x="40" y="535.0" fill="#d29922">[3/3] Checking that tool call is in tool_calls (not in content) ...</text>
+<text x="40" y="554.0" fill="#3fb950">  OK   — tool_calls has 1 entry(ies).</text>
+<text x="40" y="573.0" fill="#3fb950">  OK   — Function name is &#x27;get_stock_price&#x27; (correct).</text>
+<text x="40" y="592.0" fill="#3fb950">  OK   — Arguments contain symbol=&#x27;AAPL&#x27;.</text>
+<text x="40" y="611.0" fill="#c9d1d9"> </text>
+<text x="40" y="630.0" fill="#3fb950">PASS  — Tool calling is correctly supported by the model.</text>
+<rect width="760" height="650" rx="8" fill="none" stroke="#161b22" stroke-width="1.5"/></svg>

@@ -7,6 +7,20 @@
 > safety guardrails, and grounding against hallucination — built entirely on local
 > models (Ollama, no cloud, no API keys).
 
+## Demo
+
+Real function calling verified end-to-end against a local LLM (Ollama,
+`qwen2.5:7b`) — the model returns a structured `tool_calls` payload that the
+agent executes and guards:
+
+![function calling check](docs/media/demo-function-calling.svg)
+
+Reproduce it with the demo container on the `docker_default` network:
+
+```bash
+docker exec -w /repo alpha-agent-demo python scripts/verify_tool_calling.py
+```
+
 ## Problem
 
 Financial research is time-consuming and error-prone. Analysts must manually gather
