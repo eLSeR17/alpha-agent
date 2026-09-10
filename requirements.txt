@@ -5,7 +5,7 @@ httpx>=0.24,<1.0
 # Financial data (free, no API key)
 yfinance>=0.2.40,<1.0
 numpy>=1.23
-pandas>=1.5
+pandas>=1.5,<3.0
 
 # HTTP API server
 fastapi>=0.110,<1.0

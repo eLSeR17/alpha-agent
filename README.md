@@ -185,7 +185,7 @@ server restarts.
   ticker validation, anti-hallucination grounding (numbers anchored to real tool data)
 - **HTTP API**: FastAPI server with `/ask`, `/health`, `/tools` (Ollama or OpenAI backends)
 - **Response caching**: SQLite-backed, TTL-configurable (optional)
-- **209 unit tests**: Agent core, tools, guardrails, evals, API, cache, OpenAI client
+- **241 unit tests**: Agent core, tools, guardrails, evals, API, cache, OpenAI client
 - **E2E validation**: Real Ollama function calling verified end-to-end
 
 ## Architecture
@@ -253,7 +253,7 @@ want stronger models or lower latency.
 - **yfinance** — free financial data (market prices, ratios, news)
 - **SQLite** — optional response cache
 - **Docker Compose** — `docker_default` network (same pattern as other projects)
-- **pytest** — 209 unit tests + E2E validation
+- **pytest** — 241 unit tests + E2E validation
 
 ## Getting Started
 
@@ -299,7 +299,7 @@ PYTHONPATH=src uvicorn app:app --host 0.0.0.0 --port 8000
 
 ## Tests
 
-**209 unit tests** covering:
+**241 unit tests** covering:
 - Agent core (ReAct loop, tool selection, iteration limits)
 - Financial tools (yfinance wrappers, error handling, rate limiting)
 - Guardrails (injection detection, disclaimer enforcement, grounding)
