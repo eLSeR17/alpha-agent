@@ -1,0 +1,60 @@
+# AlphaAgent API — production-style Docker Compose example
+#
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Production notes (see docs/OPERATIONS.md):
+#  - Secrets come from environment, never baked into the image (`.env` next
+#    to this file is auto-loaded by Compose; keep it out of git).
+#  - The three SQLite stores live in named volumes so they survive
+#    container recreation; backup with `sqlite3 <db> ".backup ..."`.
+#  - Auth: set ALPHA_AGENT_AUTH=api_key and create keys via
+#    scripts/create_api_key.py (point ALPHA_AGENT_AUTH_DB at the volume).
+#  - For the Ollama backend, run this container on the same Docker network
+#    as Ollama and set OLLAMA_BASE_URL=http://ollama:11434.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: alpha-agent-api
+    ports:
+      - "8000:8000"
+    environment:
+      ALPHA_AGENT_BACKEND: ${ALPHA_AGENT_BACKEND:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
+      # Cloud backend (optional): ALPHA_AGENT_BACKEND=openai + OPENAI_API_KEY
+      ALPHA_AGENT_AUTH: ${ALPHA_AGENT_AUTH:-none}
+      ALPHA_AGENT_RATE_LIMIT: ${ALPHA_AGENT_RATE_LIMIT:-60}
+      ALPHA_AGENT_CACHE: ${ALPHA_AGENT_CACHE:-0}
+      # SQLite stores on named volumes (append /db to the volume root)
+      ALPHA_AGENT_AUTH_DB: /app/auth/auth.sqlite3
+      ALPHA_AGENT_SESSIONS_DB: /app/sessions/sessions.sqlite3
+      ALPHA_AGENT_CACHE_PATH: /app/cache/cache.sqlite3
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - auth-db:/app/auth
+      - sessions-db:/app/sessions
+      - cache-db:/app/cache
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - default
+      # Uncomment if Ollama runs in Docker on another network:
+      # - docker_default
+
+volumes:
+  auth-db:
+  sessions-db:
+  cache-db:
+
+networks:
+  default:
+  # docker_default:
+  #   external: true

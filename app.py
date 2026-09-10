@@ -9,11 +9,11 @@ Or with reload during development:
 
 from __future__ import annotations
 
-import os
 import logging
+import os
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 
-from alpha_agent.api import app  # noqa: E402
+from alpha_agent.api import app
 
 __all__ = ["app"]

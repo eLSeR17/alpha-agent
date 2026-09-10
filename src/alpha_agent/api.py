@@ -25,6 +25,7 @@ request IDs, JSON logging, and /metrics.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import time
@@ -46,6 +47,36 @@ from .ratelimit import RateLimiter
 from .sessions import SessionStore
 
 logger = logging.getLogger(__name__)
+
+
+class JsonFormatter(logging.Formatter):
+    """Emit one JSON object per log record (machine-parseable)."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        payload = {
+            "ts": self.formatTime(record, "%Y-%m-%dT%H:%M:%S%z"),
+            "level": record.levelname,
+            "logger": record.name,
+            "msg": record.getMessage(),
+        }
+        extra = getattr(record, "json_fields", None)
+        if isinstance(extra, dict):
+            payload.update(extra)
+        if record.exc_info:
+            payload["exc"] = self.formatException(record.exc_info)
+        return json.dumps(payload, default=str)
+
+
+def _configure_logging() -> None:
+    root = logging.getLogger("alpha_agent")
+    if not any(isinstance(h, logging.StreamHandler) for h in root.handlers):
+        handler = logging.StreamHandler()
+        handler.setFormatter(JsonFormatter())
+        root.addHandler(handler)
+        root.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+
+
+_configure_logging()
 
 # ---------------------------------------------------------------------------
 # Configuration (env-driven)
@@ -268,8 +299,18 @@ async def request_context(request: Request, call_next: Any) -> Any:
         metrics.inc("backend_unavailable_total")
 
     logger.info(
-        "request_id=%s method=%s path=%s status=%d duration_ms=%.1f",
-        request_id, request.method, request.url.path, code, duration * 1000,
+        "request",
+        extra={
+            "json_fields": {
+                "event": "request",
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status": code,
+                "duration_ms": round(duration * 1000, 2),
+                "client": request.client.host if request.client else None,
+            }
+        },
     )
     return response
 

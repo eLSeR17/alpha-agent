@@ -361,6 +361,42 @@ Phase 4 made AlphaAgent a service; Phase 5 makes it safe to expose:
   **241**, all hermetic, CI-safe. Server boot-verified live: `/health`, `/`,
   `/static/*`, `/metrics`, `/sessions`, `/ask` 422.
 
+## 5d. Phase 6 — Docs completion + production hardening round 2 (2026-09-10)
+
+Professional-docs closure and the second hardening pass after an honest
+self-review against production standards:
+
+- **Docs**: `docs/ARCHITECTURE.md` (components, request lifecycle sequence
+  diagram, 7 design decisions incl. the guardrails-on-every-turn fix, failure
+  modes), `docs/API.md` (endpoints, error codes 401/404/422/429/503, auth
+  quickstart) + `scripts/export_openapi.py` generating `docs/openapi.json`
+  (version 2.0.0), `docs/OPERATIONS.md` (runbook, deploy via
+  `docker-compose.prod.yml`, API-key lifecycle, capacity), `docs/LOAD_TEST.md`
+  (measured budget, see below). README: Roadmap corrected (shipped vs next)
+  + `Production readiness` table listing honest remaining gaps (Postgres,
+  Redis, async single-flight, Alembic, OTel, throttled retries).
+- **SQLite durability**: `PRAGMA journal_mode=WAL` + `busy_timeout=5000` on
+  all three stores (`cache.py`, `auth.py`, `sessions.py`) — WAL lets the
+  readers (per-request) and the single process never block a writer long, and
+  busy_timeout converts contention into a bounded wait instead of
+  `database is locked`.
+- **Service shape**: `Dockerfile.api` now runs 2 uvicorn workers + a
+  `HEALTHCHECK` (python urllib probe of `/health`); `docker-compose.prod.yml`
+  gives each SQLite DB a dedicated volume (`auth-db`, `sessions-db`,
+  `cache-db`) so restarts don't wipe state.
+- **Observability**: JSON structured logging (single JSON line per request:
+  event, request_id, method, path, status, duration_ms, client) — parseable
+  by any log shipper without custom parsing.
+- **CI security**: `pip-audit` step (dependency advisories; blocked
+  `pytest 8.4.2` `PYSEC-2026-1845` → pin `<10.0`, suite verified green on
+  pytest 9) + `gitleaks-action` (secret scan on push/PR, zero matches).
+- **Load test** (`scripts/load_test.py` + `scripts/_loadtest_app.py`):
+  service plane (LLM stubbed) measured at **404.9 req/s, p50 17.2 ms,
+  p99 56.4 ms, 0 errors (425/425 HTTP 200)** — the API layer is not the
+  bottleneck; end-to-end latency is LLM-dominated by design.
+- Suite: **241 passed** (unchanged), ruff clean, `docs/openapi.json`
+  regenerated.
+
 ## 6. How to reproduce the key checks
 
 ```bash

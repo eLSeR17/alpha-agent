@@ -25,4 +25,11 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
 # Default: Ollama backend. Override with ALPHA_AGENT_BACKEND=openai + OPENAI_API_KEY.
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# 2 workers: WAL SQLite supports concurrent readers; writers serialize on a 5 s busy
+# timeout. Note: in-memory rate-limit/metrics are per-process (Redis is the scale-out
+# path — see README "Production readiness").
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+
+# Orchestrator readiness: the container reports (healthy) only when /health answers.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]

@@ -331,13 +331,48 @@ local model, fixed with regression coverage, and re-validated end-to-end
 
 ## Roadmap
 
-- ✅ **HTTP API server** (FastAPI, Ollama + OpenAI backends, caching)
-- ✅ **Persistence/Memory**: SQLite response cache (repeated queries, instant answers)
-- **Live demo**: Live demo + CI pipeline for automated quality checks
-- **Evals (shipped)**: Golden dataset + LLM-as-judge + runner
-  (see `scripts/run_evals.py` and `tests/test_evals.py`)
-- **Conversation memory**: multi-turn context window management
-- **Auth**: API key authentication for the HTTP server
+Shipped:
+
+- ✅ **HTTP API server** (FastAPI, Ollama + OpenAI backends, response cache)
+- ✅ **Persistence/Memory**: SQLite response cache (TTL, `from_cache` flag)
+- ✅ **Conversation memory**: multi-turn sessions (last 20 turns injected through the *guarded* agent)
+- ✅ **Auth**: API key authentication (SHA-256 hashed keys, `scripts/create_api_key.py`)
+- ✅ **Rate limiting**: per-key token buckets (429 + `X-RateLimit-Remaining`)
+- ✅ **Observability**: Prometheus-style `/metrics`, `X-Request-ID`, JSON request log
+- ✅ **Web UI**: vanilla-JS chat at `/` (no build step)
+- ✅ **Evals**: golden dataset + LLM-as-judge + runner (`scripts/run_evals.py`)
+
+Next (see "Production readiness" below):
+
+- Async/streaming responses (SSE) so long generations stream to the client
+- Redis-backed rate limiting for horizontal scaling (in-memory today)
+- Load-tested performance budget under real traffic
+- Live demo deployment (Hugging Face Spaces / Streamlit)
+
+## Production readiness
+
+An honest maturity assessment — this project demonstrates **production
+patterns**, not a deployed production system.
+
+**What it is**: a service-shaped agent with auth, rate limiting, multi-turn
+sessions, observability, a web UI and a hermetic test suite (241 tests, no
+network required, CI-enforced).
+
+**What it is not yet** (and what I would do in a real deployment):
+
+| Area | Today | Production upgrade |
+|------|-------|--------------------|
+| Persistence | SQLite (WAL, thread-safe) | Postgres (or SQLite in single-instance deploys) |
+| Rate limiting | In-memory token buckets | Redis (shared, restart-safe) |
+| Concurrency | Sync endpoints (LLM call blocks the worker) | `async def` + streaming (SSE) |
+| Schema | Versioned pragmas at init | Alembic migrations |
+| Security in CI | ruff + pytest | + `pip-audit` (deps) and `gitleaks` (secrets) |
+| Observability | `/metrics` + request log (JSON) | + OpenTelemetry traces, log aggregation |
+| Capacity | `scripts/load_test.py` budget | Load-test gate in CI with SLOs |
+
+Design notes (with `docs/ARCHITECTURE.md` and `docs/API.md` for detail): the
+code separates "agent brain" (ReAct + tools + guardrails) from "service
+muscle" (API, auth, sessions, metrics) so each can evolve independently.
 
 ## Limitations
 
