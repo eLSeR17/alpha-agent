@@ -270,6 +270,14 @@ pip install -r requirements.txt
 pytest tests/ -v
 ```
 
+### Pre-push validation (recommended)
+Local gates mirror the CI (ruff, executable-bit/shebang checks, pytest,
+pip-audit) and block the push on any failure:
+
+```bash
+git config core.hooksPath scripts/hooks
+```
+
 ### Run the agent (E2E with real Ollama)
 
 The package uses a `src/` layout, so point `PYTHONPATH` at `src/` and run a small
