@@ -90,7 +90,7 @@ def load_golden_set(path: str | Path) -> list[EvalCase]:
 
     raw: Any = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(raw, list):
-        raise ValueError(f"Golden set must be a JSON list, got {type(raw).__name__}")
+        raise TypeError(f"Golden set must be a JSON list, got {type(raw).__name__}")
 
     if not raw:
         raise ValueError("Golden set must contain at least one case")

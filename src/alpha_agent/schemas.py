@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable
-from pydantic import BaseModel, Field
+from collections.abc import Callable
+from typing import Any
 
+from pydantic import BaseModel, Field
 
 # ---------------------------------------------------------------------------
 # Tool definition

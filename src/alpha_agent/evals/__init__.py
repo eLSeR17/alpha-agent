@@ -13,19 +13,19 @@ covers:
 
 from .golden_set import EvalCase, load_golden_set
 from .judge import (
+    DEFAULT_WEIGHTS,
     BaseJudge,
     JudgeContext,
     JudgeCriteria,
     LLMJudge,
     MockJudge,
-    DEFAULT_WEIGHTS,
 )
 from .report import EvalReport, print_report, save_report
 from .runner import EvalResult, run_evals
 
 __all__ = [
-    "BaseJudge",
     "DEFAULT_WEIGHTS",
+    "BaseJudge",
     "EvalCase",
     "EvalReport",
     "EvalResult",

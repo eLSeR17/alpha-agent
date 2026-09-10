@@ -114,8 +114,18 @@ class AlphaAgent:
     # Public entry point
     # ------------------------------------------------------------------
 
-    def analyze(self, query: str) -> AgentResponse:
+    def analyze(self, query: str, history: list[dict[str, Any]] | None = None) -> AgentResponse:
         """Run the ReAct loop for *query* and return an :class:`AgentResponse`.
+
+        Parameters
+        ----------
+        query:
+            The user's current question.
+        history:
+            Optional prior conversation as a list of OpenAI-style messages
+            (``{"role": "user"|"assistant", "content": "..."}``).  Injected
+            between the system prompt and the current query so the agent has
+            conversational context.
 
         The loop terminates when:
         1. The LLM produces a text answer **without** tool calls (final answer).
@@ -123,8 +133,14 @@ class AlphaAgent:
         """
         messages: list[dict[str, Any]] = [
             {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": query},
         ]
+        if history:
+            messages.extend(
+                {"role": m["role"], "content": m["content"]}
+                for m in history
+                if m.get("content") and m.get("role") in {"user", "assistant"}
+            )
+        messages.append({"role": "user", "content": query})
 
         reasoning: list[str] = []
         tool_results: list[ToolResult] = []

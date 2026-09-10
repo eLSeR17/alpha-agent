@@ -24,16 +24,18 @@ from .tools import TOOL_REGISTRY
 # (fastapi/openai are only needed when running the API server or the
 # OpenAI backend).
 try:
-    from .cache import ResponseCache  # noqa: F401
+    from .cache import ResponseCache
 except ImportError:  # pragma: no cover
     pass
 
 try:
-    from .llm_openai import OpenAIClient  # noqa: F401
+    from .llm_openai import OpenAIClient
 except ImportError:  # pragma: no cover
     pass
 
 __all__ = [
+    "TOOL_REGISTRY",
+    "AgentResponse",
     "AlphaAgent",
     "AntiHallucinationGuardrail",
     "FinancialGuardrail",
@@ -41,14 +43,12 @@ __all__ = [
     "Guardrail",
     "LLMResponse",
     "OllamaClient",
-    "AgentResponse",
-    "ResponseCache",
     "OpenAIClient",
+    "ResponseCache",
     "Tool",
     "ToolCall",
+    "ToolGuardrail",
     "ToolParameter",
     "ToolResult",
-    "ToolGuardrail",
-    "TOOL_REGISTRY",
     "ValidationResult",
 ]

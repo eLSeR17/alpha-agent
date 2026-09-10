@@ -324,6 +324,43 @@ Design notes (why it's shaped this way):
   dependency is down". The message tells the operator exactly which env var
   to check. Verified live with Ollama unreachable.
 
+---
+
+## 5c. Phase 5 — Production hardening: auth, rate limiting, sessions, UI, CI lint (2026-09-10)
+
+Phase 4 made AlphaAgent a service; Phase 5 makes it safe to expose:
+
+- **`auth.py` (`APIKeyStore`)**: SQLite-backed API-key store. Keys are hashed
+  with SHA-256 (plaintext shown exactly once at creation —
+  `scripts/create_api_key.py`). `create_key / validate_key / revoke_key /
+  list_keys / rate_limit_for`. `ALPHA_AGENT_AUTH=none|api_key` — open mode for
+  local dev, `X-API-Key` mode for production. Unauthorized → 401.
+- **`ratelimit.py` (`TokenBucket` per key)**: refill-rate bucket (limit/60 per
+  second). Applied only in `api_key` mode; per-key limit comes from the DB
+  (falls back to `ALPHA_AGENT_RATE_LIMIT`). Exhausted → 429 with
+  `X-RateLimit-Remaining: 0`. Buckets are recreated if a key's limit changes.
+- **`sessions.py` (`SessionStore`)**: SQLite multi-turn sessions. `POST
+  /sessions` → id; `POST /ask` with `session_id` injects the last 20 turns
+  (user/assistant) into the prompt *through the guarded agent* (guardrails
+  still apply, incl. anti-hallucination grounding). Unknown session → 404.
+  Persisted across restarts.
+- **`metrics.py` (`Metrics`)**: lock-protected counters + latency histograms
+  (p50/p90/p95/p99), Prometheus text format, zero dependencies.
+  `GET /metrics`; plus `GET /` web chat UI (vanilla JS, no build, served from
+  `src/alpha_agent/static/`) and an `X-Request-ID` on every response.
+- **Design fix (why it matters)**: the first multi-turn implementation called
+  `agent.agent.analyze()` directly, **bypassing the guardrails**. Fixed by
+  threading `history` through `GuardedAlphaAgent.analyze()` — guardrails and
+  grounding run on every turn, exactly as they do single-shot.
+- **CI hardening**: `ruff check src tests scripts` added to the workflow
+  (3.11/3.12). Whole repo linted clean (unused imports, blind excepts made
+  explicit `# noqa` with justification, `Self`-typed context managers, dead
+  test assignments removed).
+- **Tests**: +32 deterministic (auth store, token bucket, sessions, metrics,
+  web UI/static, session auth, rate-limit 429, multi-turn). Suite total:
+  **241**, all hermetic, CI-safe. Server boot-verified live: `/health`, `/`,
+  `/static/*`, `/metrics`, `/sessions`, `/ask` 422.
+
 ## 6. How to reproduce the key checks
 
 ```bash

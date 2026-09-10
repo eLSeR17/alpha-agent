@@ -11,8 +11,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from alpha_agent.llm_openai import OpenAIClient
-from alpha_agent.schemas import Tool, ToolCall, ToolParameter
-
+from alpha_agent.schemas import Tool, ToolParameter
 
 # ======================================================================
 # Helpers
@@ -57,9 +56,11 @@ class TestConstruction:
     def test_requires_openai_package(self) -> None:
         # Force the module-level import to be None regardless of whether
         # the openai package is installed in the test environment.
-        with patch("alpha_agent.llm_openai.OpenAI", None):
-            with pytest.raises(ImportError):
-                OpenAIClient(api_key="k", model="m")
+        with (
+            patch("alpha_agent.llm_openai.OpenAI", None),
+            pytest.raises(ImportError),
+        ):
+            OpenAIClient(api_key="k", model="m")
 
     def test_builds_client_with_api_key(self) -> None:
         with patch("alpha_agent.llm_openai.OpenAI") as mock_openai:

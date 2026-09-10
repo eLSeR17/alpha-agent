@@ -68,7 +68,7 @@ class FinancialGuardrail(Guardrail):
 
     # -- input ---------------------------------------------------------------
 
-    def validate_input(self, query: str) -> ValidationResult:  # noqa: D401
+    def validate_input(self, query: str) -> ValidationResult:
         """Reject queries that try to manipulate the agent."""
         for pat in _INJECTION_PATTERNS:
             m = pat.search(query)

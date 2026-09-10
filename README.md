@@ -46,8 +46,11 @@ and integrate it from any client (web, Slack bot, mobile, other services).
 
 ```bash
 pip install -r requirements.txt
-uvicorn app:app --host 0.0.0.0 --port 8000
+PYTHONPATH=src uvicorn app:app --host 0.0.0.0 --port 8000
 ```
+
+Open `http://localhost:8000` for the built-in web chat UI (no build step —
+plain HTML/JS served by FastAPI).
 
 ### Quick start (OpenAI backend — cloud)
 
@@ -71,9 +74,12 @@ docker run --rm -p 8000:8000 -e ALPHA_AGENT_BACKEND=openai -e OPENAI_API_KEY=sk-
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/ask` | Ask a financial question. Returns the grounded answer + tool calls. |
-| `GET` | `/health` | Liveness probe; reports backend and model in use. |
+| `GET` | `/` | Web chat UI (vanilla JS, served from `src/alpha_agent/static/`). |
+| `POST` | `/ask` | Ask a financial question (multi-turn with `session_id`). Returns the grounded answer + tool calls. |
+| `GET` | `/health` | Liveness probe; reports backend, model, auth mode, cache status. |
 | `GET` | `/tools` | Lists the agent's tools (name, description, parameters). |
+| `POST` | `/sessions` | Create a multi-turn conversation session. |
+| `GET` | `/metrics` | Prometheus text-format metrics (requests, latency, errors, rate-limited). |
 
 ### Example
 
@@ -116,13 +122,60 @@ curl -X POST http://localhost:8000/ask \
 | `ALPHA_AGENT_CACHE` | `0` | `1` to enable SQLite response caching |
 | `ALPHA_AGENT_CACHE_PATH` | `cache.sqlite3` | Cache DB file |
 | `ALPHA_AGENT_CACHE_TTL` | `3600` | Cache validity in seconds |
+| `ALPHA_AGENT_AUTH` | `none` | `none` (open) or `api_key` (require `X-API-Key`) |
+| `ALPHA_AGENT_AUTH_DB` | `auth.sqlite3` | Auth DB (API keys hashed with SHA-256) |
+| `ALPHA_AGENT_RATE_LIMIT` | `60` | Default per-key requests/minute |
+| `ALPHA_AGENT_SESSIONS_DB` | `sessions.sqlite3` | SQLite store for multi-turn sessions |
 | `LOG_LEVEL` | `INFO` | Logging verbosity |
 
 ### Query caching
 
 Repeated identical questions are served from a SQLite store (keyed by SHA-256 of
 the query) for `ALPHA_AGENT_CACHE_TTL` seconds — saving latency and tokens on paid
-backends. Responses include `"from_cache": true` on cache hits.
+backends. Responses include `"from_cache": true` on cache hits. (Caching applies
+to standalone queries only — multi-turn answers are context-aware by design.)
+
+### Authentication (production mode)
+
+Start with `ALPHA_AGENT_AUTH=api_key` to protect the API, then create keys:
+
+```bash
+PYTHONPATH=src python scripts/create_api_key.py --name alice --rate-limit 30
+```
+
+Keys are stored **hashed** (SHA-256); the plaintext is shown only once. Every
+request must then send the key:
+
+```bash
+curl -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: aa_..." \
+  -d '{"question": "What is the price of AAPL?"}'
+```
+
+Unauthorized requests get `401`; over-limit requests get `429` with the
+`X-RateLimit-Remaining` header.
+
+### Multi-turn sessions
+
+Create a session, then pass `session_id` on every turn to keep conversation
+context (last 20 turns are injected into the agent's prompt):
+
+```bash
+SESSION=$(curl -s -X POST http://localhost:8000/sessions | jq -r .session_id)
+curl -X POST http://localhost:8000/ask -H "Content-Type: application/json" \
+  -d "{\"question\": \"What is the price of AAPL?\", \"session_id\": \"$SESSION\"}"
+```
+
+Unknown session ids return `404`. Sessions are persisted in SQLite and survive
+server restarts.
+
+### Observability
+
+`GET /metrics` exposes Prometheus-format metrics (`requests_total`,
+`request_duration_seconds` histogram, `errors_total`, `backend_unavailable_total`,
+`rate_limited_total`, `cache_hits_total`). Every response carries an
+`X-Request-ID` header for tracing.
 
 ## Features (Phase 1)
 

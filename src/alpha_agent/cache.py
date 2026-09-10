@@ -18,7 +18,7 @@ import threading
 import time
 from pathlib import Path
 
-from .schemas import AgentResponse, ToolResult, ToolCall
+from .schemas import AgentResponse, ToolCall, ToolResult
 
 logger = logging.getLogger(__name__)
 

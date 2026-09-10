@@ -75,9 +75,18 @@ class GuardedAlphaAgent:
     # Public API
     # ------------------------------------------------------------------
 
-    def analyze(self, query: str) -> AgentResponse:
+    def analyze(self, query: str, history: list[dict[str, Any]] | None = None) -> AgentResponse:
         """Run the guarded analysis pipeline.
 
+        Parameters
+        ----------
+        query:
+            The user's current question.
+        history:
+            Optional prior conversation messages passed through to the
+            underlying agent (see :meth:`AlphaAgent.analyze`).
+
+        Steps:
         1. **Input guardrails** – every guardrail's ``validate_input`` is
            called.  If *any* rejects, the query is blocked and a synthetic
            ``AgentResponse`` is returned without calling the LLM.
@@ -110,7 +119,7 @@ class GuardedAlphaAgent:
                 )
 
         # ---- 2. Run the agent ----
-        response = self.agent.analyze(query)
+        response = self.agent.analyze(query, history=history)
 
         # ---- 3. Output validation / enrichment ----
         for guardrail in self.guardrails:

@@ -87,9 +87,9 @@ TOOL_REGISTRY: dict[str, Tool] = {
 
 __all__ = [
     "TOOL_REGISTRY",
-    "get_stock_price",
-    "get_stock_history",
     "calculate_risk_metrics",
-    "search_news",
     "get_company_info",
+    "get_stock_history",
+    "get_stock_price",
+    "search_news",
 ]

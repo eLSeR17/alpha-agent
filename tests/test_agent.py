@@ -7,14 +7,11 @@ from __future__ import annotations
 
 import json
 from typing import Any
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from alpha_agent.agent import AlphaAgent
 from alpha_agent.llm import OllamaClient
-from alpha_agent.schemas import LLMResponse, Tool, ToolCall, ToolParameter, ToolResult
-
+from alpha_agent.schemas import LLMResponse, Tool, ToolCall, ToolParameter
 
 # ======================================================================
 # Helpers
@@ -45,7 +42,7 @@ def _sample_tool() -> Tool:
         parameters=[
             ToolParameter(name="expression", type="string", description="Math expression", required=True),
         ],
-        fn=lambda expression: str(eval(expression)),  # noqa: S307 — test only
+        fn=lambda expression: str(eval(expression)),
     )
 
 
@@ -133,7 +130,7 @@ class TestToolCalling:
             name="calculator",
             description="Math",
             parameters=[ToolParameter(name="expression", type="string", required=True)],
-            fn=lambda expression: str(eval(expression)),  # noqa: S307
+            fn=lambda expression: str(eval(expression)),
         )
         lookup_tool = Tool(
             name="lookup",

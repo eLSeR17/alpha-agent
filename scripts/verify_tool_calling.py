@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import json
 import sys
-import urllib.request
 import urllib.error
+import urllib.request
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -60,7 +60,7 @@ PAYLOAD = {
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    print(f"=== Ollama Function-Calling Verification ===")
+    print("=== Ollama Function-Calling Verification ===")
     print(f"Endpoint : {OLLAMA_URL}")
     print(f"Model    : {MODEL}")
     print()
@@ -115,7 +115,7 @@ def main() -> int:
     if tool_calls:
         first_fn = tool_calls[0].get("function", {}).get("name", "")
         if first_fn == "get_stock_price":
-            print(f"  OK   — Function name is 'get_stock_price' (correct).")
+            print("  OK   — Function name is 'get_stock_price' (correct).")
         else:
             print(f"  FAIL — Function name is '{first_fn}', expected 'get_stock_price'.")
             all_pass = False
@@ -136,10 +136,10 @@ def main() -> int:
 
     # Check D: content should be empty (model doesn't need to explain)
     if content and not tool_calls:
-        print(f"  FAIL — Model put the tool call as TEXT in content instead of using tool_calls.")
+        print("  FAIL — Model put the tool call as TEXT in content instead of using tool_calls.")
         all_pass = False
     elif content and tool_calls:
-        print(f"  INFO — Content is non-empty alongside tool_calls (acceptable).")
+        print("  INFO — Content is non-empty alongside tool_calls (acceptable).")
 
     # --- Final verdict -----------------------------------------------------
     print()

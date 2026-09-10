@@ -61,7 +61,7 @@ def get_stock_price(symbol: str) -> dict[str, Any]:
             "change_pct": change_pct,
             "previous_close": round(float(prev_close), 4) if prev_close else None,
         }
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001  # degrade gracefully on any provider error
         logger.warning("get_stock_price failed for %s: %s", symbol, exc)
         return {"error": f"Failed to fetch price for '{symbol}': {exc}"}
 
@@ -109,7 +109,7 @@ def get_stock_history(symbol: str, period: str = "1mo") -> dict[str, Any]:
             "start_date": str(hist.index[0].date()),
             "end_date": str(hist.index[-1].date()),
         }
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001  # degrade gracefully on any provider error
         logger.warning("get_stock_history failed for %s: %s", symbol, exc)
         return {"error": f"Failed to fetch history for '{symbol}': {exc}"}
 
@@ -154,6 +154,6 @@ def get_company_info(symbol: str) -> dict[str, Any]:
             "fifty_two_week_low": info.get("fiftyTwoWeekLow"),
             "description": (info.get("longBusinessSummary") or "")[:500],
         }
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001  # degrade gracefully on any provider error
         logger.warning("get_company_info failed for %s: %s", symbol, exc)
         return {"error": f"Failed to fetch company info for '{symbol}': {exc}"}

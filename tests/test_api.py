@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from alpha_agent.schemas import AgentResponse, ToolResult, ToolCall
+from alpha_agent.schemas import AgentResponse, ToolCall, ToolResult
 
 
 def _agent_response(query: str, blocked: bool = False) -> AgentResponse:
@@ -36,14 +36,16 @@ def _agent_response(query: str, blocked: bool = False) -> AgentResponse:
 def client(monkeypatch):
     """TestClient with a scripted fake agent (no LLM calls)."""
     fake_guarded = MagicMock()
-    fake_guarded.analyze.side_effect = lambda q: _agent_response(q)
+    fake_guarded.analyze.side_effect = lambda q, history=None: _agent_response(q)
     fake_guarded.agent.llm = MagicMock(model="fake-model")
 
     import alpha_agent.api as api_module
 
-    with patch.object(api_module, "build_agent", return_value=fake_guarded):
-        with patch("alpha_agent.api.CACHE_ENABLED", False):
-            yield TestClient(api_module.app)
+    with (
+        patch.object(api_module, "build_agent", return_value=fake_guarded),
+        patch("alpha_agent.api.CACHE_ENABLED", False),
+    ):
+        yield TestClient(api_module.app)
 
 
 class TestHealth:

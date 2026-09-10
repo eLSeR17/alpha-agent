@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from alpha_agent.cache import ResponseCache
-from alpha_agent.schemas import AgentResponse, ToolResult, ToolCall
+from alpha_agent.schemas import AgentResponse, ToolCall, ToolResult
 
 
 def _sample_response(query: str = "What is AAPL price?") -> AgentResponse:

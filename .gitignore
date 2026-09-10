@@ -27,3 +27,6 @@ data/*.pkl
 
 # OS
 .DS_Store
+
+# SQLite runtime databases (API server)
+*.sqlite3

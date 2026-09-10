@@ -5,19 +5,20 @@ All yfinance calls are mocked — no network requests are made.
 
 from __future__ import annotations
 
-import json
 from types import SimpleNamespace
 from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
-import pytest
 
-from alpha_agent.tools.market import get_company_info, get_stock_history, get_stock_price
+from alpha_agent.tools import TOOL_REGISTRY
+from alpha_agent.tools.market import (
+    get_company_info,
+    get_stock_history,
+    get_stock_price,
+)
 from alpha_agent.tools.news import search_news
 from alpha_agent.tools.risk import calculate_risk_metrics
-from alpha_agent.tools import TOOL_REGISTRY
-
 
 # ======================================================================
 # Helpers

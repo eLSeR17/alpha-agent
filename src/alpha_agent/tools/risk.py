@@ -96,6 +96,6 @@ def calculate_risk_metrics(symbol: str, period: str = "3mo") -> dict[str, Any]:
             "data_points": data_points,
             "risk_free_rate": _RISK_FREE_RATE,
         }
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001  # degrade gracefully on any provider error
         logger.warning("calculate_risk_metrics failed for %s: %s", symbol, exc)
         return {"error": f"Failed to calculate risk metrics for '{symbol}': {exc}"}

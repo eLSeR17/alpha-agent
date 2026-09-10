@@ -13,6 +13,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from alpha_agent.agent import AlphaAgent
+from alpha_agent.guarded_agent import GuardedAlphaAgent
 from alpha_agent.guardrails import (
     AntiHallucinationGuardrail,
     FinancialGuardrail,
@@ -20,9 +21,12 @@ from alpha_agent.guardrails import (
     ToolGuardrail,
     ValidationResult,
 )
-from alpha_agent.guarded_agent import GuardedAlphaAgent
-from alpha_agent.schemas import AgentResponse, LLMResponse, Tool, ToolCall, ToolParameter, ToolResult
-
+from alpha_agent.schemas import (
+    AgentResponse,
+    LLMResponse,
+    ToolCall,
+    ToolResult,
+)
 
 # ======================================================================
 # Helpers
@@ -470,7 +474,7 @@ class TestAntiHallucinationGroundingIntegration:
         fake_result = ToolResult(tool_call=fake_tc, output=tool_data_json, success=True)
 
         class _MockAgent:
-            def analyze(self, q: str) -> AgentResponse:
+            def analyze(self, q: str, history=None) -> AgentResponse:
                 return AgentResponse(
                     query=q,
                     final_answer="AAPL is currently at 319.97, up from 320.01.",
@@ -541,13 +545,8 @@ class TestGuardedAgent:
 
     def test_does_not_double_disclaimer(self) -> None:
         """If the LLM already includes a disclaimer, it's not duplicated."""
-        fake = _make_llm_response(
-            content="AAPL is at $190. Disclaimer: for informational purposes only."
-        )
-        agent = _mock_client([fake])
-
         class _FakeAgent:
-            def analyze(self, q: str) -> AgentResponse:
+            def analyze(self, q: str, history=None) -> AgentResponse:
                 return AgentResponse(
                     query=q,
                     final_answer="AAPL is at $190. Disclaimer: for informational purposes only.",
@@ -572,14 +571,9 @@ class TestGuardedAgent:
         tool_output = json.dumps({"price": 190.25})
         fake_tc = ToolCall(name="get_stock_price", arguments={"symbol": "AAPL"})
         fake_result = ToolResult(tool_call=fake_tc, output=tool_output, success=True)
-        fake_resp = _make_llm_response(
-            content="AAPL is at $250.00 today.",
-            tool_calls=[{"name": "get_stock_price", "arguments": {"symbol": "AAPL"}}],
-        )
-
         # Mock agent that returns tool results in the response
         class _MockAgent:
-            def analyze(self, q: str) -> AgentResponse:
+            def analyze(self, q: str, history=None) -> AgentResponse:
                 return AgentResponse(
                     query=q,
                     final_answer="AAPL is at $250.00 today.",

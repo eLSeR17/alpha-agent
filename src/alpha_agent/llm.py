@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any
+from typing import Any, Self
 
 import httpx
 
@@ -134,8 +134,8 @@ class OllamaClient:
         """Close the underlying HTTP client."""
         self._http.close()
 
-    def __enter__(self) -> "OllamaClient":
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *exc: Any) -> None:
+    def __exit__(self, *exc: object) -> None:
         self.close()

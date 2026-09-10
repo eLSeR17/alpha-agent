@@ -31,10 +31,10 @@ from pathlib import Path
 # holds ``src/alpha_agent`` and ``.git``.
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _PROJECT_ROOT = _SCRIPT_DIR
-while not ((
+while not (
     (_PROJECT_ROOT / "src" / "alpha_agent" / "__init__.py").exists()
     and (_PROJECT_ROOT / ".git").exists()
-)):
+):
     _parent = _PROJECT_ROOT.parent
     if _parent == _PROJECT_ROOT:
         raise RuntimeError("Could not locate alpha-agent repo root from " + str(_SCRIPT_DIR))
@@ -50,15 +50,16 @@ if str(_STAGING_SRC) not in sys.path:
 if str(_ROOT_SRC) not in sys.path:
     sys.path.insert(0, str(_ROOT_SRC))
 
-import alpha_agent  # noqa: E402
+import alpha_agent
+
 # Make ``alpha_agent.evals`` (staging src) reachable from the imported package.
 _staging_pkg = str(_STAGING_SRC / "alpha_agent")
 if _staging_pkg not in list(alpha_agent.__path__):
     alpha_agent.__path__.append(_staging_pkg)
 
-from alpha_agent import TOOL_REGISTRY  # noqa: E402
-from alpha_agent.agent import AlphaAgent  # noqa: E402
-from alpha_agent.evals import (  # noqa: E402
+from alpha_agent import TOOL_REGISTRY
+from alpha_agent.agent import AlphaAgent
+from alpha_agent.evals import (
     EvalReport,
     LLMJudge,
     MockJudge,
@@ -67,10 +68,10 @@ from alpha_agent.evals import (  # noqa: E402
     run_evals,
     save_report,
 )
-from alpha_agent.evals.runner import DEFAULT_PASS_THRESHOLD  # noqa: E402
-from alpha_agent.guarded_agent import GuardedAlphaAgent  # noqa: E402
-from alpha_agent.llm import OllamaClient  # noqa: E402
-from alpha_agent.schemas import LLMResponse  # noqa: E402
+from alpha_agent.evals.runner import DEFAULT_PASS_THRESHOLD
+from alpha_agent.guarded_agent import GuardedAlphaAgent
+from alpha_agent.llm import OllamaClient
+from alpha_agent.schemas import LLMResponse
 
 
 class _StubLLM:

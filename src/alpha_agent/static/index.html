@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlphaAgent — Financial Research Assistant</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="app-header">
+    <div class="logo">Alpha<span>Agent</span></div>
+    <div class="badges">
+      <span class="badge" id="backend-badge">backend: …</span>
+      <span class="badge" id="session-badge">session: new</span>
+    </div>
+    <button id="new-chat" class="btn-secondary" title="Start a new conversation">New chat</button>
+  </header>
+
+  <main class="chat-area" id="chat-area">
+    <div class="welcome" id="welcome">
+      <h1>Financial research assistant</h1>
+      <p>Ask about stock prices, historical performance, risk metrics, news, and company fundamentals.<br>
+      Every answer is <strong>grounded</strong> in real tool data and verified by guardrails.</p>
+      <div class="suggestions">
+        <button class="suggestion">What is the current price of AAPL?</button>
+        <button class="suggestion">How did TSLA perform over the last month?</button>
+        <button class="suggestion">What is the Sharpe ratio of MSFT?</button>
+        <button class="suggestion">Recent news about NVDA?</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="input-area">
+    <div class="input-row">
+      <input id="question" type="text" placeholder="Ask a financial question…"
+             autocomplete="off" maxlength="2000">
+      <button id="send" class="btn-primary" disabled>Send</button>
+    </div>
+    <p class="disclaimer">Educational demonstration, not investment advice.</p>
+  </footer>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>

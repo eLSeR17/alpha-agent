@@ -74,6 +74,6 @@ def search_news(query: str, max_results: int = 5) -> dict[str, Any]:
             "count": len(results),
             "results": results,
         }
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001  # degrade gracefully on any provider error
         logger.warning("search_news failed for query '%s': %s", query, exc)
         return {"error": f"Failed to fetch news for '{query}': {exc}"}

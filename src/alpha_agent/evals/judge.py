@@ -345,7 +345,7 @@ class MockJudge(BaseJudge):
         words = len(answer.split())
         if 5 <= words <= 120:
             return 1.0
-        return 0.5 if words < 5 else 0.5
+        return 0.5
 
     @staticmethod
     def _score_relevance(ctx: JudgeContext) -> float:

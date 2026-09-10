@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -49,7 +48,7 @@ class EvalReport(BaseModel):
     generated_at: str = ""
 
     @classmethod
-    def from_results(cls, results: list[EvalResult]) -> "EvalReport":
+    def from_results(cls, results: list[EvalResult]) -> EvalReport:
         """Build a report by aggregating *results*."""
         total = len(results)
         passed = sum(1 for r in results if r.passed)

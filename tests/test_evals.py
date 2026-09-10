@@ -96,7 +96,7 @@ class TestGoldenSetLoader:
     def test_load_non_list_raises(self, tmp_path: Path) -> None:
         bad = tmp_path / "bad.json"
         bad.write_text('{"query": "x"}', encoding="utf-8")
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             load_golden_set(bad)
 
     def test_includes_all_expected_categories(self, golden_set: list[EvalCase]) -> None:
