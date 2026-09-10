@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Fast-path app for load testing — scripted agent (no LLM).
 
 The load test measures the *service plane* (auth, rate limiting, sessions,
