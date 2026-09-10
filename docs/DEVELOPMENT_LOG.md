@@ -44,6 +44,10 @@ local model. Final real E2E eval run: **mean score 0.991 (9/10 cases)**.
 | 2026-09-08 | 2 | Final real E2E: **mean 0.991, 9/10** — remaining miss documented honestly | ✅ |
 | 2026-09-08 | 3 | CI workflow (3.11/3.12 matrix) + badge; full suite runs headless | ✅ |
 | 2026-09-08 | 3 | Review pass → **INC-006** (process incident): false-positive REJECT + 2 real findings fixed | ✅ |
+| 2026-09-10 | 4 | **HTTP API server** (FastAPI): `/ask`, `/health`, `/tools` endpoints | ✅ |
+| 2026-09-10 | 4 | **OpenAIClient** — drop-in OpenAI-compatible backend (gpt-4o-mini, Groq, vLLM) | ✅ |
+| 2026-09-10 | 4 | **ResponseCache** — SQLite query cache (TTL-configurable, optional) | ✅ |
+| 2026-09-10 | 4 | API hardening: 503 on backend-unavailable, sandboxed 422 on bad input | ✅ |
 
 ---
 
@@ -284,6 +288,41 @@ case by case — is evidence the harness works, not that it is broken. We prefer
 honest 9/10 with full visibility over a gamed 10/10.
 
 ---
+
+## 5b. Phase 4 — HTTP API server, dual backend, response cache (2026-09-10)
+
+The agent core was already production-shaped (guardrails, grounding, eval
+harness). Phase 4 turns it into a **service** so it can be integrated by real
+clients (web UI, Slack bot, another service):
+
+- **`api.py` (FastAPI)**: `POST /ask` (guarded agent), `GET /health`
+  (backend + model + cache status), `GET /tools` (registry introspection).
+  Validation via Pydantic: empty/blank questions → 422, oversized → 422.
+  Backend-unavailable (Ollama down, network error) → **503 with a
+  self-diagnosing message**, never a bare 500.
+- **`llm_openai.py` (`OpenAIClient`)**: implements the exact same
+  `chat_with_tools()` contract as `OllamaClient` so `AlphaAgent` is backend
+  agnostic. Supports any OpenAI-compatible endpoint (OpenAI, Groq, Azure,
+  vLLM). Selection via one env var: `ALPHA_AGENT_BACKEND=ollama|openai`.
+  Parsing is tolerant: malformed `arguments` JSON → `{}`, never a crash.
+- **`cache.py` (`ResponseCache`)**: SQLite cache keyed by SHA-256 of the
+  query, TTL-configurable (default 1h), thread-safe. Repeated identical
+  questions are answered from cache (saves tokens on paid backends).
+  Serialization round-trips the full `AgentResponse` (tool calls included).
+- **Tests**: +18 deterministic tests (OpenAI client parsing/schema, cache
+  hit/miss/TTL/round-trip, API endpoints with scripted fake agent). Suite
+  total: **209**, all hermetic, CI-safe.
+
+Design notes (why it's shaped this way):
+
+- **Backend swap is one env var, not a code change** — the agent core only
+  knows `chat_with_tools()`. This keeps the public repo cloud-free by
+  default while making the paid path an opt-in.
+- **Caching is opt-in** (`ALPHA_AGENT_CACHE=1`) — no behaviour change for
+  existing users; `from_cache: true` in the response makes hits visible.
+- **503, not 500** — a service must distinguish "I'm broken" from "my
+  dependency is down". The message tells the operator exactly which env var
+  to check. Verified live with Ollama unreachable.
 
 ## 6. How to reproduce the key checks
 

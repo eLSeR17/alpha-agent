@@ -1,0 +1,28 @@
+# AlphaAgent API server — production container
+# Build:   docker build -f Dockerfile.api -t alpha-agent-api .
+# Run:     docker run --rm -p 8000:8000 -e ALPHA_AGENT_BACKEND=ollama alpha-agent-api
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# System deps (minimal)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python deps first for layer caching
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# App source
+COPY src/ src/
+COPY app.py .
+
+ENV PYTHONPATH=/app/src
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 8000
+
+# Default: Ollama backend. Override with ALPHA_AGENT_BACKEND=openai + OPENAI_API_KEY.
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

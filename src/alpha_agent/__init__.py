@@ -20,6 +20,19 @@ from .schemas import (
 )
 from .tools import TOOL_REGISTRY
 
+# Optional extras — imported lazily so the core stays dependency-light
+# (fastapi/openai are only needed when running the API server or the
+# OpenAI backend).
+try:
+    from .cache import ResponseCache  # noqa: F401
+except ImportError:  # pragma: no cover
+    pass
+
+try:
+    from .llm_openai import OpenAIClient  # noqa: F401
+except ImportError:  # pragma: no cover
+    pass
+
 __all__ = [
     "AlphaAgent",
     "AntiHallucinationGuardrail",
@@ -29,6 +42,8 @@ __all__ = [
     "LLMResponse",
     "OllamaClient",
     "AgentResponse",
+    "ResponseCache",
+    "OpenAIClient",
     "Tool",
     "ToolCall",
     "ToolParameter",
