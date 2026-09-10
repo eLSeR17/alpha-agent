@@ -35,6 +35,10 @@ jobs:
       - name: Scan dependencies for known vulnerabilities
         run: |
           pip install pip-audit
+          # Fresh toolchain: the hosted runner's preinstalled setuptools 79.x is
+          # flagged by PYSEC-2026-3447 (fixed in 83.0.0). setuptools is not a
+          # project dependency — updating the build toolchain clears the advisory.
+          pip install -U "setuptools>=83" pip
           pip-audit --desc on
 
       - name: Scan for leaked secrets (gitleaks)
